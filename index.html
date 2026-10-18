@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The evidence behind Option E</title>
+<meta name="description" content="Research appendix to Team KSTS's Round 1 submission, LYB Mumbai Hackathon 2026: the sources behind choosing AI-based energy optimisation for (fictional) Plant X.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* Layout: an engineering drawing sheet on a grey desk. Title block in the hero, a sticky question rail on the left,
+     an evidence register on the right. ISA-101 restraint: grey by default, colour only where it carries meaning
+     (blue = our design choice, amber = caveat, dashed outline = Plant X plan, not a result). */
+  :root {
+    --desk: #e6eaec;
+    --sheet: #fbfcfc;
+    --ink: #0f1d28;
+    --ink-2: #384751;
+    --muted: #677680;
+    --rule: #c3ccd1;
+    --rule-soft: #dde3e6;
+    --grid: #edf1f3;
+    --signal: #1b4ec2;
+    --signal-wash: #e7edfb;
+    --caution: #8f5500;
+    --caution-wash: #fcf0d6;
+
+    --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+    --body: "Public Sans", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--desk); color: var(--ink); font: 400 16px/1.62 var(--body); -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--sheet); }
+  a { color: var(--signal); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+  p { margin: 0; }
+  sub { font-size: .72em; }
+  [id] { scroll-margin-top: 76px; }
+
+  .gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  @media (min-width: 900px) { .gutter { padding-left: max(40px, env(safe-area-inset-left, 0px)); padding-right: max(40px, env(safe-area-inset-right, 0px)); } }
+
+  .mono { font-family: var(--mono); }
+  .kicker { font: 500 11.5px/1.3 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .ph { background: var(--caution-wash); color: var(--caution); padding: 0 3px; font-weight: 500; }
+
+  /* ---------- Nav ---------- */
+  .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--sheet); border-bottom: 1px solid var(--rule); }
+  .nav-in { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; gap: 24px; height: 52px; }
+  .nav-id { font: 600 12px/1 var(--mono); letter-spacing: .06em; color: var(--ink); text-decoration: none; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+  .nav-id b { display: inline-grid; place-items: center; width: 24px; height: 24px; border: 1.5px solid var(--signal); border-radius: 50%; color: var(--signal); font-size: 12px; }
+  .nav ul { display: flex; gap: 2px; margin: 0 0 0 auto; padding: 0; list-style: none; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+  .nav ul::-webkit-scrollbar { display: none; }
+  .nav li a { display: block; padding: 7px 10px; font: 500 13px/1 var(--body); color: var(--ink-2); text-decoration: none; white-space: nowrap; border-radius: 3px; }
+  .nav li a:hover { background: var(--grid); color: var(--ink); }
+  @media (max-width: 700px) { .nav-id span { display: none; } .nav ul { margin-left: 0; } }
+
+  /* ---------- Sheet ---------- */
+  .sheet { max-width: 1240px; margin: 0 auto; background: var(--sheet); }
+  @media (min-width: 1280px) { .sheet { margin-block: 24px 40px; border: 1px solid var(--rule); } }
+
+  .strip { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 24px; padding-block: 12px; border-bottom: 1px solid var(--rule); }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; padding-block: 56px 0;
+          background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+          background-size: 24px 24px; background-position: -1px -1px; }
+  .hero-grid { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: end; }
+  @media (min-width: 980px) { .hero-grid { grid-template-columns: minmax(0, 1fr) 380px; gap: 56px; } }
+  h1 { font-family: var(--display); font-weight: 760; font-stretch: 72%; font-size: clamp(48px, 8.4vw, 104px); line-height: .92; letter-spacing: -.012em; text-transform: uppercase; color: var(--ink); }
+  h1 em { font-style: normal; color: var(--signal); }
+  .lede { margin-top: 24px; max-width: 54ch; font-size: clamp(17px, 1.7vw, 19px); line-height: 1.55; color: var(--ink-2); }
+
+  .tblock { width: 100%; border-collapse: collapse; background: var(--sheet); border: 1.5px solid var(--ink); font-size: 13.5px; }
+  .tblock th, .tblock td { border: 1px solid var(--rule); padding: 8px 12px; text-align: left; vertical-align: top; }
+  .tblock th { width: 34%; font: 500 10.5px/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .tblock td { color: var(--ink); }
+  .tblock caption { caption-side: top; text-align: left; font: 600 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--sheet); background: var(--ink); padding: 7px 12px; }
+
+  .readouts { margin-top: 48px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1.5px solid var(--ink); background: var(--sheet); }
+  @media (min-width: 900px) { .readouts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .ro { padding: 18px 20px 20px; border-bottom: 1px solid var(--rule); min-width: 0; }
+  .ro + .ro { border-left: 1px solid var(--rule); }
+  @media (max-width: 899px) { .ro:nth-child(3) { border-left: 0; } }
+  .ro .kicker { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 8px; }
+  .ro .kicker a.tag { letter-spacing: .02em; }
+  .ro .v { margin-top: 10px; font-family: var(--display); font-weight: 700; font-stretch: 80%; font-size: clamp(44px, 5.4vw, 62px); line-height: 1; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .ro .v small { font-size: .42em; font-weight: 600; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+  .ro p { margin-top: 10px; font-size: 14px; line-height: 1.45; color: var(--ink-2); }
+  .ro.target .v { color: var(--signal); }
+
+  .legend { display: grid; grid-template-columns: 1fr; gap: 14px 32px; padding-block: 22px 26px; border-bottom: 1px solid var(--rule); background: var(--sheet); }
+  @media (min-width: 900px) { .legend { grid-template-columns: 140px 1fr; } }
+  .legend ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 28px; margin: 0; padding: 0; list-style: none; font-size: 14px; color: var(--ink-2); }
+  .legend li { display: flex; gap: 10px; align-items: baseline; }
+  .legend li > :first-child { flex: 0 0 auto; }
+  .sw { display: inline-block; width: 26px; height: 14px; vertical-align: -2px; }
+  .sw.solid { border: 1.5px solid var(--ink-2); }
+  .sw.ctrl { border: 1.5px solid var(--signal); background: var(--signal-wash); }
+  .sw.plan { border: 1.5px dashed var(--muted); }
+  .sw.cav { background: var(--caution-wash); border: 1px solid var(--caution); }
+
+  /* ---------- Tags ---------- */
+  a.tag { display: inline-block; font: 600 10.5px/1 var(--mono); letter-spacing: .02em; padding: 3px 6px; margin: 0 1px; border: 1px solid var(--signal); border-radius: 999px; color: var(--signal); background: var(--sheet); text-decoration: none; vertical-align: 1px; white-space: nowrap; }
+  a.tag:hover { background: var(--signal); color: var(--sheet); }
+  .stype { display: inline-block; font: 600 9.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 3px 5px; color: var(--caution); background: var(--caution-wash); vertical-align: 1px; white-space: nowrap; }
+
+  /* ---------- Sections ---------- */
+  .sec { display: grid; grid-template-columns: 1fr; gap: 28px; padding-block: 56px; border-top: 1px solid var(--rule); }
+  @media (min-width: 980px) { .sec { grid-template-columns: 300px minmax(0, 1fr); gap: 56px; } }
+  .rail { min-width: 0; }
+  @media (min-width: 980px) { .rail-in { position: sticky; top: 84px; } }
+  .rail h2 { margin-top: 10px; font-family: var(--display); font-weight: 720; font-stretch: 82%; font-size: clamp(30px, 3.4vw, 38px); line-height: 1.02; letter-spacing: -.005em; }
+  .rail p { margin-top: 14px; font-size: 15px; color: var(--ink-2); max-width: 46ch; }
+  .onslide { margin-top: 18px; display: inline-flex; gap: 8px; align-items: center; font: 500 12px/1.3 var(--mono); color: var(--ink-2); padding: 6px 10px; border: 1px solid var(--rule); background: var(--sheet); }
+  .onslide b { color: var(--ink); font-weight: 600; }
+  .body { min-width: 0; }
+
+  /* Evidence register */
+  .ev { padding-block: 26px; border-top: 1px solid var(--rule-soft); }
+  .ev:first-child { border-top: 0; padding-top: 0; }
+  .ev-h { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 18px; }
+  .ev h3 { font-family: var(--display); font-weight: 650; font-stretch: 95%; font-size: 20px; line-height: 1.25; }
+  .ev-meta { font: 400 12px/1.4 var(--mono); color: var(--muted); }
+  .ev-grid { margin-top: 14px; display: grid; grid-template-columns: 1fr; gap: 10px; }
+  @media (min-width: 760px) { .ev-grid { grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr); gap: 0 12px; } }
+  .ev-grid .lbl { display: block; font: 500 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .ev-grid > div { min-width: 0; }
+  .ev-grid > div > p { font-size: 15.5px; color: var(--ink-2); }
+  .ev-grid > div > p + p { margin-top: 8px; }
+  .ev-grid .to { display: flex; justify-content: center; padding-top: 18px; color: var(--signal); font: 500 18px/1 var(--mono); }
+  .ev-grid .to .dn { display: none; }
+  @media (max-width: 759px) { .ev-grid .to { justify-content: flex-start; padding: 0; } .ev-grid .to .rt { display: none; } .ev-grid .to .dn { display: inline; } }
+  .ev-grid .took .lbl { color: var(--signal); }
+  .ev-grid .took > p { color: var(--ink); }
+  .cav { margin-top: 16px; display: flex; gap: 12px; align-items: baseline; padding: 9px 12px; background: var(--caution-wash); color: var(--caution); font-size: 14px; line-height: 1.5; }
+  .cav .k { flex: 0 0 auto; font: 600 10px/1.5 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+
+  /* Path figure */
+  .fig { margin-top: 36px; border: 1.5px solid var(--ink); }
+  .fig-h { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 18px; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
+  .fig-h h3 { font-family: var(--display); font-weight: 680; font-stretch: 88%; font-size: 21px; }
+  .lane { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 16px; border-top: 1px solid var(--rule-soft); }
+  .lane:first-of-type { border-top: 0; }
+  @media (min-width: 820px) { .lane { grid-template-columns: 150px minmax(0, 1fr); gap: 18px; align-items: center; } }
+  .lane-n { font: 600 12.5px/1.35 var(--mono); color: var(--ink); }
+  .lane-n span { display: block; margin-top: 3px; font-weight: 400; color: var(--muted); font-size: 11.5px; }
+  .flow { display: flex; align-items: stretch; margin: 0; padding: 0; list-style: none; min-width: 0; }
+  .st { flex: 1 1 0; min-width: 0; padding: 10px 12px; border: 1.5px solid var(--ink-2); background: var(--sheet); font-size: 13.5px; line-height: 1.4; color: var(--ink-2); }
+  .st b { display: block; font: 600 10.5px/1.3 var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--ink); margin-bottom: 4px; }
+  .st.ctrl { border-color: var(--signal); background: var(--signal-wash); color: var(--ink); }
+  .st.ctrl b { color: var(--signal); }
+  .st.plan { border-style: dashed; border-color: var(--muted); }
+  .ln { flex: 0 0 26px; align-self: center; height: 1.5px; background: var(--ink-2); position: relative; }
+  .ln::after { content: ""; position: absolute; right: -1px; top: -4px; border: 4.5px solid transparent; border-left: 7px solid var(--ink-2); border-right: 0; }
+  .lane.planned .ln { background: repeating-linear-gradient(90deg, var(--muted) 0 4px, transparent 4px 7px); }
+  .lane.planned .ln::after { border-left-color: var(--muted); }
+  @media (max-width: 600px) {
+    .flow { flex-direction: column; }
+    .ln { flex: 0 0 18px; width: 1.5px; height: auto; align-self: flex-start; margin-left: 18px; }
+    .ln::after { right: auto; top: auto; bottom: -1px; left: -4px; border: 4.5px solid transparent; border-top: 7px solid var(--ink-2); border-bottom: 0; }
+    .lane.planned .ln { background: repeating-linear-gradient(180deg, var(--muted) 0 4px, transparent 4px 7px); }
+    .lane.planned .ln::after { border-top-color: var(--muted); border-left-color: transparent; }
+  }
+
+  /* Calibration table */
+  .tbl { margin-top: 28px; border: 1.5px solid var(--ink); }
+  .scroll { overflow-x: auto; }
+  table.cal { width: 100%; min-width: 660px; border-collapse: collapse; font-size: 14px; }
+  .cal th, .cal td { padding: 11px 14px; text-align: left; vertical-align: top; border-top: 1px solid var(--rule-soft); }
+  .cal thead th { border-top: 0; border-bottom: 1px solid var(--rule); font: 500 10.5px/1.3 var(--mono); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); background: var(--grid); }
+  .cal td { color: var(--ink-2); }
+  .cal td:first-child { color: var(--ink); font-weight: 500; }
+  .cal td.n { font: 600 14px/1.3 var(--mono); color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .cal tr.ours td { border-top: 1.5px dashed var(--muted); background: var(--signal-wash); }
+  .cal tr.ours td.n { color: var(--signal); font-size: 17px; }
+  .tbl .cav { margin: 0; }
+
+  /* Alternatives */
+  .opts { display: grid; grid-template-columns: 1fr; gap: 0; border-top: 1.5px solid var(--ink); }
+  @media (min-width: 760px) { .opts { grid-template-columns: 1fr 1fr; } }
+  .opt { display: flex; flex-direction: column; gap: 10px; padding: 22px 0 26px; border-bottom: 1px solid var(--rule); min-width: 0; }
+  @media (min-width: 760px) {
+    .opt:nth-child(odd) { padding-right: 28px; border-right: 1px solid var(--rule); }
+    .opt:nth-child(even) { padding-left: 28px; }
+  }
+  .opt-h { display: flex; align-items: flex-start; gap: 14px; }
+  .opt-l { font-family: var(--display); font-weight: 760; font-stretch: 70%; font-size: 56px; line-height: .85; color: var(--rule); }
+  .opt-h h3 { font-family: var(--display); font-weight: 650; font-stretch: 92%; font-size: 19px; line-height: 1.25; }
+  .verdict { display: inline-block; margin-top: 6px; font: 600 10px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 4px 7px; border: 1px solid var(--rule); color: var(--muted); }
+  .verdict.runner { border-color: var(--signal); color: var(--signal); }
+  .opt > p { font-size: 15px; color: var(--ink-2); }
+  .flip { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--rule-soft); }
+  .flip .lbl { display: block; font: 500 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--signal); margin-bottom: 6px; }
+  .flip p { font-size: 15px; color: var(--ink); }
+
+  /* Unknowns */
+  .qs { display: grid; grid-template-columns: 1fr; gap: 0; border-top: 1.5px solid var(--ink); }
+  @media (min-width: 760px) { .qs { grid-template-columns: 1fr 1fr; } }
+  .q { padding: 22px 0 24px; border-bottom: 1px solid var(--rule); min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  @media (min-width: 760px) {
+    .q:nth-child(odd) { padding-right: 28px; border-right: 1px solid var(--rule); }
+    .q:nth-child(even) { padding-left: 28px; }
+  }
+  .q .qid { font: 600 12px/1 var(--mono); color: var(--signal); }
+  .q h3 { font-family: var(--display); font-weight: 650; font-stretch: 92%; font-size: 19px; line-height: 1.25; }
+  .q p { font-size: 15px; color: var(--ink-2); }
+  .q .test { margin-top: auto; padding: 10px 12px; border: 1.5px dashed var(--muted); color: var(--ink); }
+  .q .test b { font: 600 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--signal); display: block; margin-bottom: 6px; }
+
+  /* References */
+  .refkey { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 18px; font-size: 13.5px; color: var(--muted); }
+  ol.refs { list-style: none; margin: 0; padding: 0; border-top: 1.5px solid var(--ink); }
+  ol.refs li { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 12px; padding: 12px 8px 12px 0; border-bottom: 1px solid var(--rule-soft); font-size: 14.5px; line-height: 1.55; color: var(--ink-2); transition: background-color .4s; }
+  ol.refs li:target { background: var(--signal-wash); }
+  .rid { font: 600 12.5px/1.6 var(--mono); color: var(--signal); padding-left: 4px; }
+  ol.refs .t { color: var(--ink); }
+  ol.refs a.url { font: 400 12.5px/1.5 var(--mono); overflow-wrap: anywhere; }
+
+  /* Footer */
+  .foot { padding-block: 0 40px; }
+  .foot table { width: 100%; border-collapse: collapse; border: 1.5px solid var(--ink); font-size: 14px; }
+  .foot th, .foot td { border: 1px solid var(--rule); padding: 10px 14px; text-align: left; vertical-align: top; }
+  .foot th { width: 180px; font: 500 10.5px/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .foot td { color: var(--ink-2); }
+  @media (max-width: 600px) { .foot th { width: 110px; } }
+</style>
+</head>
+<body>
+
+<nav class="nav gutter" aria-label="Sections">
+  <div class="nav-in">
+    <a class="nav-id" href="#top"><b>E</b><span>EVIDENCE APPENDIX</span></a>
+    <ul>
+      <li><a href="#target">Energy</a></li>
+      <li><a href="#precedent">Precedents</a></li>
+      <li><a href="#operators">Operators</a></li>
+      <li><a href="#safety">Safety</a></li>
+      <li><a href="#others">Other options</a></li>
+      <li><a href="#unknowns">Unknowns</a></li>
+      <li><a href="#sources">Sources</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="sheet" id="top">
+
+  <div class="strip gutter kicker">
+    <span>LYB Mumbai Hackathon 2026 · Round 1 · Factory of 2036</span>
+    <span>Optional appendix · Sources accessed 18 Oct 2026</span>
+  </div>
+
+  <header class="hero">
+    <div class="gutter">
+      <div class="hero-grid">
+        <div>
+          <h1>The evidence behind <em>Option&nbsp;E</em></h1>
+          <p class="lede">Why we would spend Plant X’s ₹2 crore on AI-based energy optimisation, traced claim by claim to the sources we checked and the design choice each one shaped.</p>
+        </div>
+        <table class="tblock">
+          <caption>Title block</caption>
+          <tbody>
+            <tr><th scope="row">Decision</th><td><b>Option E</b> · AI-based energy optimisation</td></tr>
+            <tr><th scope="row">Site</th><td>Plant X (fictional, from the brief)</td></tr>
+            <tr><th scope="row">Budget</th><td>₹2 crore, one initiative</td></tr>
+            <tr><th scope="row">Team</th><td>KSTS · NMIMS MPSTME, Mumbai</td></tr>
+            <tr><th scope="row">Members</th><td>Aryan Tiwari, Shaman Shetty, Palash Chowdhury</td></tr>
+            <tr><th scope="row">Slides</th><td>Scoring, calculation and pilot plan are on slides 1–3, not repeated here</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="readouts">
+        <div class="ro">
+          <span class="kicker"><span>Sources checked</span><span>S1–S23</span></span>
+          <p class="v">23</p>
+          <p>Every claim on this page carries a source tag that links to the reference list.</p>
+        </div>
+        <div class="ro">
+          <span class="kicker"><span>Cooling energy</span><a class="tag" href="#s1">S1</a></span>
+          <p class="v">~30<small>%</small></p>
+          <p>Average saving once Google moved from AI advice to AI control.</p>
+        </div>
+        <div class="ro">
+          <span class="kicker"><span>Steam, one column</span><a class="tag" href="#s3">S3</a></span>
+          <p class="v">40<small>%</small></p>
+          <p>Less steam on one AI-controlled distillation column, versus manual control.</p>
+        </div>
+        <div class="ro target">
+          <span class="kicker"><span>Our planning figure</span><a href="#calibration">Table</a></span>
+          <p class="v">4<small>%</small></p>
+          <p>Deliberately below every published case we found.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="legend gutter">
+    <span class="kicker">How to read</span>
+    <ul>
+      <li><a class="tag" href="#s1">S1</a><span>Source tag. Jumps to the reference.</span></li>
+      <li><span class="mono" style="color:var(--signal)">→</span><span>From what a source shows to the design choice it shaped.</span></li>
+      <li><span class="sw cav"></span><span>Caveat on how far a source can be trusted.</span></li>
+      <li><span class="stype">Vendor</span><span>Vendor, trade-press and secondary sources are labelled.</span></li>
+      <li><span class="sw ctrl"></span><span>AI in control: a reported result.</span></li>
+      <li><span class="sw plan"></span><span>Plant X plan. Plant X and its figures are fictional.</span></li>
+    </ul>
+  </div>
+
+  <!-- Energy -->
+  <section class="sec gutter" id="target">
+    <div class="rail"><div class="rail-in">
+      <span class="kicker">Context research</span>
+      <h2>Is energy the right target?</h2>
+      <p>The brief calls energy Plant X’s largest controllable cost. We checked where process-plant energy goes, what can be fixed without AI, and whether carbon now has a price in India.</p>
+      <span class="onslide">Option ranking <b>→ slide 1</b></span>
+    </div></div>
+    <div class="body">
+      <article class="ev">
+        <div class="ev-h"><h3>Steam is where chemical-sector energy goes</h3><span class="ev-meta">US DOE steam sourcebook</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>Steam generation accounted for about 57% of the total energy used by the US chemicals industry <a class="tag" href="#s7">S7</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>The pilot starts in utilities (boilers, steam and compressed air), where the energy is concentrated.</p></div>
+        </div>
+        <p class="cav"><span class="k">Caveat</span><span>Based on 1994 data, so we treat it as directional only.</span></p>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>Simple boiler fixes don’t need AI</h3><span class="ev-meta">US DOE Steam Tip Sheet #4</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>Boiler efficiency rises by about 1% for every 15% reduction in excess air, or for every 40°F reduction in stack temperature <a class="tag" href="#s6">S6</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>Single-loop fixes (O<sub>2</sub> trim, steam traps, leaks) are done without AI. AI is used only for cross-unit trade-offs that no single loop can see.</p></div>
+        </div>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>Carbon now has a market in India</h3><span class="ev-meta">Carbon Credit Trading Scheme</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span>
+            <p>India’s Carbon Credit Trading Scheme was notified by the Ministry of Power on 28 June 2023 and covers 9 energy-intensive sectors, including petrochemicals <a class="tag" href="#s8">S8</a></p>
+            <p>Amendment rules in force from 13 Jan 2026 set GHG emission-intensity targets for petrochemical crackers, with baseline FY 2023-24 and compliance years 2025-26 and 2026-27 <a class="tag" href="#s9">S9</a> <span class="stype">Secondary</span></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>Avoided CO<sub>2</sub> now has market value, so emissions are tracked alongside cost rather than treated as a side benefit.</p></div>
+        </div>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>Converting electricity savings to CO<sub>2</sub></h3><span class="ev-meta">Central Electricity Authority</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>The Indian grid emission factor was 0.716 tCO<sub>2</sub>/MWh for FY 2022-23 <a class="tag" href="#s10">S10</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>This is the factor we use to convert electricity savings into avoided CO<sub>2</sub>.</p></div>
+        </div>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>Real operators already fund efficiency</h3><span class="ev-meta">LyondellBasell, Feb 2026</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>LyondellBasell’s Scope 1+2 target is now −32% by 2030 versus 2020 (revised from 42%), with energy-efficiency projects run through its Value Enhancement Program and at least 50% renewable electricity by 2030 <a class="tag" href="#s11">S11</a> <span class="stype">Trade press</span></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>Efficiency is a lever that real operators already fund, so Option E is a realistic choice. Plant X itself is fictional and is not modelled on any real site.</p></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Precedents -->
+  <section class="sec gutter" id="precedent">
+    <div class="rail"><div class="rail-in">
+      <span class="kicker">Case studies and patterns</span>
+      <h2>Has this worked before?</h2>
+      <p>Four published cases, from data centres to distillation columns to cement. They share a path from AI advice to supervised AI control, and they set the ceiling that our 4% sits well under.</p>
+      <span class="onslide">4% assumption (A3) <b>→ slide 1</b></span>
+    </div></div>
+    <div class="body">
+      <article class="ev">
+        <div class="ev-h"><h3>Google / DeepMind: from advice to supervised control</h3><span class="ev-meta">Data-centre cooling, 2016–2018</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span>
+            <p>A 2016 recommendation-only system was useful but too labour-intensive for operators to implement. By 2018 the AI controlled cooling directly under operator supervision, saving ~30% on average after a few months <a class="tag" href="#s1">S1</a></p>
+            <p>Safety design: uncertainty estimates drop low-confidence actions, two layers of checks against operator-set limits, automatic fallback, and human override always wins <a class="tag" href="#s1">S1</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span>
+            <p>Advice is a stage, not the end state, so Plant X plans a staged move towards control.</p>
+            <p>We copy the safety pattern: discard low-confidence moves, check every move against engineer-set limits, fall back automatically, and let operator override always win.</p></div>
+        </div>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>Yokogawa + JSR: autonomous AI on a real distillation column</h3><span class="ev-meta">Chemical plant, 2022–2023</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span>
+            <p>A reinforcement-learning AI (FKDPP) ran a distillation column autonomously for 35 days (840 h, 17 Jan–21 Feb 2022), a claimed world first. It was built and tested on a simulator first, ran inside the existing control system with all interlocks kept, and was checked for acceptance by veteran operators <a class="tag" href="#s2">S2</a></p>
+            <p>After about a year it was formally adopted at ENEOS Materials, which reported 40% less steam and CO<sub>2</sub> than manual control on that column <a class="tag" href="#s3">S3</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span>
+            <p>Prove the model offline before it touches the plant. Run it inside the existing control system, never around it, and keep every interlock.</p>
+            <p>Treat acceptance by experienced operators as a pass/fail check.</p></div>
+        </div>
+        <p class="cav"><span class="k">Caveat</span><span>Both figures come from the vendor’s own press releases and cover a single column, not a whole site.</span></p>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>McKinsey: AI optimisers in cement plants</h3><span class="ev-meta">Feldmann, Dec 2019</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>An AI real-time optimiser runs either in advisory mode (operators make the adjustments) or in autonomous mode. One plant saw up to a 10% gain in throughput and energy efficiency. Scaling depends on change management <a class="tag" href="#s4">S4</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>Build both modes from day one so the site can move between them. Plan and budget for change management, not only software.</p></div>
+        </div>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>ISO 50001: gains last when they become routine</h3><span class="ev-meta">Fitzgerald et al., 2023 · 83 facilities</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>Across 83 manufacturing facilities, energy performance improved by ~4.1% in year 1 and was still improving by ~3.4% a year after 12 years, because energy management became part of daily operations <a class="tag" href="#s5">S5</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>The optimiser has to live inside daily shift work, through the operator console and a weekly savings review, rather than run as a one-off project.</p></div>
+        </div>
+      </article>
+
+      <figure class="fig" style="margin-inline:0" aria-labelledby="path-title">
+        <div class="fig-h"><h3 id="path-title">The path from advice to control</h3><span class="kicker">Each case moved in stages</span></div>
+        <div class="lane">
+          <div class="lane-n">Google / DeepMind<span>Data-centre cooling <a class="tag" href="#s1">S1</a></span></div>
+          <ol class="flow">
+            <li class="st"><b>2016 · Advice</b>Recommendations only; operators implement by hand</li>
+            <li class="ln" aria-hidden="true"></li>
+            <li class="st ctrl"><b>2018 · Supervised control</b>AI acts, operators supervise; ~30% average saving</li>
+          </ol>
+        </div>
+        <div class="lane">
+          <div class="lane-n">Yokogawa / JSR<span>Distillation column <a class="tag" href="#s2">S2</a><a class="tag" href="#s3">S3</a></span></div>
+          <ol class="flow">
+            <li class="st"><b>Simulator</b>Built and tested offline first</li>
+            <li class="ln" aria-hidden="true"></li>
+            <li class="st ctrl"><b>35-day trial · 2022</b>840 h autonomous, interlocks kept</li>
+            <li class="ln" aria-hidden="true"></li>
+            <li class="st ctrl"><b>~1 year later</b>Formally adopted; 40% less steam</li>
+          </ol>
+        </div>
+        <div class="lane planned">
+          <div class="lane-n">Plant X<span>Our plan · fictional site</span></div>
+          <ol class="flow">
+            <li class="st plan"><b>Shadow</b>AI recommends silently; nothing reaches the plant</li>
+            <li class="ln" aria-hidden="true"></li>
+            <li class="st plan"><b>Year 1 · Advisory</b>Operators review and enter every change by hand</li>
+            <li class="ln" aria-hidden="true"></li>
+            <li class="st plan"><b>Year 2 · Loop by loop</b>Control handed over one loop at a time, inside engineer-set limits</li>
+          </ol>
+        </div>
+      </figure>
+
+      <div class="tbl" id="calibration">
+        <div class="fig-h"><h3>How we calibrated 4%</h3><span class="kicker">Assumption A3 · slide 1</span></div>
+        <div class="scroll">
+          <table class="cal">
+            <thead><tr><th>Source</th><th>Scope</th><th>Reported result</th><th>Relevance to Plant X</th></tr></thead>
+            <tbody>
+              <tr><td>Google / DeepMind <a class="tag" href="#s1">S1</a></td><td>Data-centre cooling, AI control under supervision</td><td class="n">~30% avg.</td><td>Strong proof of supervised control; different industry and load</td></tr>
+              <tr><td>Yokogawa / JSR / ENEOS Materials <a class="tag" href="#s2">S2</a><a class="tag" href="#s3">S3</a></td><td>One distillation column, chemical plant</td><td class="n">40% steam</td><td>Closest process match, but a single unit, not a whole site</td></tr>
+              <tr><td>McKinsey, cement <a class="tag" href="#s4">S4</a></td><td>One cement plant, real-time optimiser</td><td class="n">Up to 10%</td><td>Continuous heavy process; “up to” is a ceiling, not an average</td></tr>
+              <tr><td>ISO 50001 study <a class="tag" href="#s5">S5</a></td><td>83 manufacturing facilities; energy management, not AI</td><td class="n">~4.1% yr 1</td><td>Broadest base; what disciplined routine achieves without AI</td></tr>
+              <tr class="ours"><td>Plant X assumption</td><td>Set-point-sensitive share of site energy (fictional)</td><td class="n">4%</td><td>Deliberately below every case above</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="cav"><span class="k">Caveat</span><span>These results are not directly comparable: they differ in scope, industry and method. They only show that 4% is a cautious planning figure, not a forecast.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Operators -->
+  <section class="sec gutter" id="operators">
+    <div class="rail"><div class="rail-in">
+      <span class="kicker">Human-factors research</span>
+      <h2>Will operators use it?</h2>
+      <p>The brief’s catch for Option E is that production teams fear automated set-point changes. Research on people and automation shaped how the operator console behaves.</p>
+      <span class="onslide">How the catch is handled <b>→ slide 2</b></span>
+    </div></div>
+    <div class="body">
+      <article class="ev">
+        <div class="ev-h"><h3>Two ways automation fails people: misuse and disuse</h3><span class="ev-meta">Parasuraman &amp; Riley, 1997</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>People can <em>misuse</em> automation by relying on it too much, or <em>disuse</em> it by ignoring automation that works well <a class="tag" href="#s12">S12</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>We plan for both: newer operators may over-trust the optimiser, and experienced ones may reject it.</p></div>
+        </div>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>Design for appropriate reliance</h3><span class="ev-meta">Lee &amp; See, 2004</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>Trust should match what the automation can actually do. Making the automation’s reasoning visible helps operators rely on it the right amount <a class="tag" href="#s13">S13</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>Every recommendation shows its reason and its ₹ saving. Rejections are logged with a reason and reviewed, so we learn where operators disagree.</p></div>
+        </div>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>The ironies of automation</h3><span class="ev-meta">Bainbridge, 1983</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>Automation wears away the very skills operators need for the rare moments when they must step in <a class="tag" href="#s14">S14</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>In year 1, operators enter every change by hand, so they keep their hands-on feel for the plant.</p></div>
+        </div>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>Skill fade happens quickly</h3><span class="ev-meta">Center for Operator Performance / Lamar University</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>In simulator tests, performance fell ~10% after 1 week of advanced process control and nearly 50% after 2 weeks <a class="tag" href="#s15">S15</a> <span class="stype">Trade press</span></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>It supports Bainbridge’s warning and our year-1 manual-entry rule. We read the size of the effect as a warning sign, not a precise estimate.</p></div>
+        </div>
+        <p class="cav"><span class="k">Caveat</span><span>Participants were engineering students, not plant operators.</span></p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Safety -->
+  <section class="sec gutter" id="safety">
+    <div class="rail"><div class="rail-in">
+      <span class="kicker">Standards</span>
+      <h2>Is it safe and measurable?</h2>
+      <p>Three established practices set how the optimiser’s limits are changed, how it connects to the plant, and how savings are proven.</p>
+      <span class="onslide">System flow <b>→ slide 2</b></span>
+    </div></div>
+    <div class="body">
+      <article class="ev">
+        <div class="ev-h"><h3>Management of change</h3><span class="ev-meta">OSHA PSM · 29 CFR 1910.119(l)</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>Process changes need written management-of-change procedures covering the technical basis, the safety and health impact, changes to operating procedures, and authorisation <a class="tag" href="#s16">S16</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>The optimiser’s limits are set and changed only through management of change, signed off by engineers.</p></div>
+        </div>
+        <p class="cav"><span class="k">Note</span><span>This US rule is used as a good-practice reference. An Indian site would apply its own regulations.</span></p>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>A one-way data link</h3><span class="ev-meta">Data diodes / unidirectional gateways</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>Data diodes enforce one-way transfer in hardware, for example copying the plant historian to the IT network with no inbound path back to the plant <a class="tag" href="#s17">S17</a> <span class="stype">Vendor</span></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>The AI reads plant data through a read-only link. Nothing can be written back to the control system over that path.</p></div>
+        </div>
+      </article>
+
+      <article class="ev">
+        <div class="ev-h"><h3>Proving the savings</h3><span class="ev-meta">IPMVP · Efficiency Valuation Organization</span></div>
+        <div class="ev-grid">
+          <div><span class="lbl">Source shows</span><p>Savings can’t be metered directly. They are found by comparing measured use before and after, adjusted for changed conditions <a class="tag" href="#s18">S18</a></p></div>
+          <div class="to" aria-hidden="true"><span class="rt">→</span><span class="dn">↓</span></div>
+          <div class="took"><span class="lbl">Design choice</span><p>A weekly savings baseline corrected for production load and weather, so the optimiser is judged on real savings, not on a busy or quiet week.</p></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Alternatives -->
+  <section class="sec gutter" id="others">
+    <div class="rail"><div class="rail-in">
+      <span class="kicker">Alternatives</span>
+      <h2>Why not the other four?</h2>
+      <p>The evidence only, with the condition that would change our mind on each.</p>
+      <span class="onslide">Scores and switch conditions <b>→ slide 1</b></span>
+    </div></div>
+    <div class="body">
+      <div class="opts">
+        <article class="opt">
+          <div class="opt-h"><span class="opt-l" aria-hidden="true">A</span><div><h3>Predictive maintenance</h3><span class="verdict runner">Runner-up · year-2 bet</span></div></div>
+          <p>Mature programmes are credited with 30–50% less downtime (McKinsey 2017, via a secondary summary) <a class="tag" href="#s20">S20</a> <span class="stype">Secondary</span></p>
+          <p>But McKinsey (Brink et al., 2021) describes a ~10% false-positive rate wiping out the savings, and notes that many failures are essentially random <a class="tag" href="#s19">S19</a>. Plant X also has sensors on only 40% of its equipment and incomplete records <a class="tag" href="#s23">S23</a></p>
+          <div class="flip"><span class="lbl">Would change our mind if</span><p>Sensor coverage and maintenance records were already good enough to train on, or breakdown losses grew larger than the energy prize.</p></div>
+        </article>
+
+        <article class="opt">
+          <div class="opt-h"><span class="opt-l" aria-hidden="true">B</span><div><h3>Autonomous inspection robots</h3><span class="verdict">Not now</span></div></div>
+          <p>The technology is real. BP deployed Boston Dynamics’ Spot on its Mad Dog platform in Oct 2020 for rounds, gauge reading and leak detection <a class="tag" href="#s22">S22</a> <span class="stype">Trade press</span> ANYbotics’ ANYmal X is ATEX/IECEx certified for Zone 1 <a class="tag" href="#s21">S21</a> <span class="stype">Vendor</span></p>
+          <p>But the brief says it is the most expensive option and needs site-specific safety certification <a class="tag" href="#s23">S23</a>. Fixed sensors are a cheaper first step.</p>
+          <div class="flip"><span class="lbl">Would change our mind if</span><p>Plant X had a recent serious incident in a hazardous zone. Safety would then outrank cost.</p></div>
+        </article>
+
+        <article class="opt">
+          <div class="opt-h"><span class="opt-l" aria-hidden="true">C</span><div><h3>AI vision quality inspection</h3><span class="verdict">Not now</span></div></div>
+          <p>Image data already exists, but defects cost relatively little, and quality is not one of Plant X’s four pressures <a class="tag" href="#s23">S23</a></p>
+          <div class="flip"><span class="lbl">Would change our mind if</span><p>Defects started to carry a real cost, such as customer complaints or lost orders, or quality became a stated pressure on the site.</p></div>
+        </article>
+
+        <article class="opt">
+          <div class="opt-h"><span class="opt-l" aria-hidden="true">D</span><div><h3>Plant-wide digital twin</h3><span class="verdict">Later</span></div></div>
+          <p>The brief gives it an uncertain payback over 3+ years and a dependence on many data systems <a class="tag" href="#s23">S23</a>. With sensors on only 40% of equipment, the data foundation isn’t there yet.</p>
+          <div class="flip"><span class="lbl">Would change our mind if</span><p>Sensor coverage and data integration were already in place and a shorter, credible payback could be shown.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Unknowns -->
+  <section class="sec gutter" id="unknowns">
+    <div class="rail"><div class="rail-in">
+      <span class="kicker">Open questions</span>
+      <h2>What we still don’t know</h2>
+      <p>Four things the published evidence cannot answer for Plant X. The pilot is designed to answer them before more money is committed.</p>
+      <span class="onslide">Pilot plan and day-90 gate <b>→ slide 3</b></span>
+    </div></div>
+    <div class="body">
+      <div class="qs">
+        <article class="q">
+          <span class="qid">U1</span>
+          <h3>Will Plant X’s operators accept it?</h3>
+          <p>The research on misuse, disuse and skill fade <a class="tag" href="#s12">S12</a><a class="tag" href="#s14">S14</a> tells us what can go wrong, not how this crew will respond.</p>
+          <p class="test"><b>Pilot test</b>Every recommendation is logged as accepted or rejected, with a reason, and measured against the ≥70% acceptance assumption (A4).</p>
+        </article>
+        <article class="q">
+          <span class="qid">U2</span>
+          <h3>Does 4% hold here?</h3>
+          <p>Published results range widely and are not directly comparable to Plant X <a class="tag" href="#s1">S1</a><a class="tag" href="#s5">S5</a></p>
+          <p class="test"><b>Pilot test</b>Savings are measured against a baseline adjusted for load and weather <a class="tag" href="#s18">S18</a>, starting in shadow mode before any change reaches the plant.</p>
+        </article>
+        <article class="q">
+          <span class="qid">U3</span>
+          <h3>Is the historian data good enough?</h3>
+          <p>Plant X has incomplete records and partial sensor coverage <a class="tag" href="#s23">S23</a>. Gaps, faulty tags or drifting meters would mislead the model.</p>
+          <p class="test"><b>Pilot test</b>A data-quality audit of the utility tags comes before any model is trusted. Bad tags are fixed or excluded.</p>
+        </article>
+        <article class="q">
+          <span class="qid">U4</span>
+          <h3>Will the model drift as equipment ages?</h3>
+          <p>Ageing equipment is one of Plant X’s four pressures <a class="tag" href="#s23">S23</a>. A model trained on today’s plant may be wrong about next year’s.</p>
+          <p class="test"><b>Pilot test</b>Predicted and measured outcomes are compared every week. A growing gap triggers retraining, and low-confidence moves are dropped <a class="tag" href="#s1">S1</a></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- References -->
+  <section class="sec gutter" id="sources">
+    <div class="rail"><div class="rail-in">
+      <span class="kicker">References</span>
+      <h2>Sources</h2>
+      <p>All links accessed 18 Oct 2026 and open in a new tab. Unlabelled entries are primary: official bodies, standards, peer-reviewed papers or the original publisher.</p>
+    </div></div>
+    <div class="body">
+      <p class="refkey"><span>Labelled:</span><span class="stype">Vendor</span><span class="stype">Trade press</span><span class="stype">Secondary</span><span class="stype">Competition brief</span></p>
+      <ol class="refs">
+        <li id="s1"><span class="rid">S1</span><span>Google DeepMind (17 Aug 2018). <span class="t">“Safety-first AI for autonomous data centre cooling and industrial control.”</span> DeepMind blog. <a class="url" href="https://deepmind.google/discover/blog/safety-first-ai-for-autonomous-data-centre-cooling-and-industrial-control" target="_blank" rel="noopener">deepmind.google/discover/blog/safety-first-ai-for-autonomous-data-centre-cooling-and-industrial-control</a></span></li>
+        <li id="s2"><span class="rid">S2</span><span>Yokogawa Electric (22 Mar 2022). Press release on the 35-day autonomous AI control trial with JSR. <span class="stype">Vendor</span> <a class="url" href="https://yokogawa.com/news/press-releases/2022/2022-03-22" target="_blank" rel="noopener">yokogawa.com/news/press-releases/2022/2022-03-22</a></span></li>
+        <li id="s3"><span class="rid">S3</span><span>Yokogawa Electric (30 Mar 2023). Press release on formal adoption of autonomous AI control at ENEOS Materials. <span class="stype">Vendor</span> <a class="url" href="https://yokogawa.com/news/press-releases/2023/2023-03-30" target="_blank" rel="noopener">yokogawa.com/news/press-releases/2023/2023-03-30</a></span></li>
+        <li id="s4"><span class="rid">S4</span><span>Feldmann, McKinsey &amp; Company (Dec 2019). <span class="t">“Artificial intelligence helps cut emissions and costs in cement plants.”</span> <a class="url" href="https://mckinsey.com/~/media/McKinsey/Industries/Chemicals/Our%20Insights/Artificial%20intelligence%20helps%20cut%20emissions%20and%20costs%20in%20cement%20plants/Artificial-intelligence-helps-cut-emissions-and-costs-in-cement-plants.ashx" target="_blank" rel="noopener">mckinsey.com (PDF)</a></span></li>
+        <li id="s5"><span class="rid">S5</span><span>Fitzgerald, Therkelsen, Sheaffer &amp; Rao (2023). Study of deeper and persistent energy savings under ISO 50001 in manufacturing. <em>Sustainable Energy Technologies and Assessments</em>, 57. Lawrence Berkeley National Laboratory record. <a class="url" href="https://eta-publications.lbl.gov/publications/deeper-and-persistent-energy-savings" target="_blank" rel="noopener">eta-publications.lbl.gov/publications/deeper-and-persistent-energy-savings</a></span></li>
+        <li id="s6"><span class="rid">S6</span><span>US Department of Energy. <span class="t">Steam Tip Sheet #4.</span> <a class="url" href="https://www.nrel.gov/docs/fy12osti/52764.pdf" target="_blank" rel="noopener">nrel.gov/docs/fy12osti/52764.pdf</a></span></li>
+        <li id="s7"><span class="rid">S7</span><span>US Department of Energy. <span class="t">Improving Steam System Performance: A Sourcebook for Industry.</span> <a class="url" href="https://www.nrel.gov/docs/fy02osti/31797.pdf" target="_blank" rel="noopener">nrel.gov/docs/fy02osti/31797.pdf</a></span></li>
+        <li id="s8"><span class="rid">S8</span><span>International Energy Agency, Policies database. <span class="t">Carbon Credit Trading Scheme 2023.</span> <a class="url" href="https://www.iea.org/policies/25639-carbon-credit-trading-scheme-2023" target="_blank" rel="noopener">iea.org/policies/25639-carbon-credit-trading-scheme-2023</a></span></li>
+        <li id="s9"><span class="rid">S9</span><span>Corporate Professionals (23 Jan 2026). <span class="t">Greenhouse Gases Emission Intensity Target (Amendment) Rules 2025.</span> Regulatory update. <span class="stype">Secondary</span> <a class="url" href="https://www.corporateprofessionals.com/regulatoryupdate/greenhouse-gases-emission-intensity-target-amendment-rules-2025/" target="_blank" rel="noopener">corporateprofessionals.com/regulatoryupdate/greenhouse-gases-emission-intensity-target-amendment-rules-2025</a></span></li>
+        <li id="s10"><span class="rid">S10</span><span>Central Electricity Authority, Government of India. <span class="t">CO<sub>2</sub> Baseline Database for the Indian Power Sector, User Guide v19.0</span> (FY 2022-23). <a class="url" href="https://cea.nic.in/api/cdm-report-version/view-pdf/en/74" target="_blank" rel="noopener">cea.nic.in/api/cdm-report-version/view-pdf/en/74</a></span></li>
+        <li id="s11"><span class="rid">S11</span><span>Chemical Processing (25 Feb 2026). <span class="t">LyondellBasell updates 2030 emissions and circular polymer goals.</span> <span class="stype">Trade press</span> <a class="url" href="https://www.chemicalprocessing.com/industrynews/news/55360104/lyondellbasell-updates-2030-emissions-and-circular-polymer-goals" target="_blank" rel="noopener">chemicalprocessing.com/industrynews/news/55360104</a></span></li>
+        <li id="s12"><span class="rid">S12</span><span>Parasuraman, R. &amp; Riley, V. (1997). <span class="t">“Humans and automation: Use, misuse, disuse, abuse.”</span> <em>Human Factors</em>, 39(2), 230–253. <a class="url" href="https://www.proquest.com/docview/216444294" target="_blank" rel="noopener">proquest.com/docview/216444294</a></span></li>
+        <li id="s13"><span class="rid">S13</span><span>Lee, J. D. &amp; See, K. A. (2004). <span class="t">“Trust in automation: Designing for appropriate reliance.”</span> <em>Human Factors</em>, 46(1), 50–80. <a class="url" href="https://journals.sagepub.com/doi/10.1518/hfes.46.1.50_30392" target="_blank" rel="noopener">doi.org/10.1518/hfes.46.1.50_30392</a></span></li>
+        <li id="s14"><span class="rid">S14</span><span>Bainbridge, L. (1983). <span class="t">“Ironies of automation.”</span> <em>Automatica</em>, 19(6), 775–779. <a class="url" href="https://doi.org/10.1016/0005-1098(83)90046-8" target="_blank" rel="noopener">doi.org/10.1016/0005-1098(83)90046-8</a></span></li>
+        <li id="s15"><span class="rid">S15</span><span>Chemical Processing. <span class="t">Podcast: Study reveals advanced process control can degrade operator skills</span> (Center for Operator Performance / Lamar University study). <span class="stype">Trade press</span> <a class="url" href="https://www.chemicalprocessing.com/asset-management/podcast/33005938/podcast-study-reveals-advanced-process-control-can-degrade-operator-skills" target="_blank" rel="noopener">chemicalprocessing.com/asset-management/podcast/33005938</a></span></li>
+        <li id="s16"><span class="rid">S16</span><span>US Occupational Safety and Health Administration. <span class="t">29 CFR 1910.119, Process safety management of highly hazardous chemicals</span>, para. (l) Management of change. <a class="url" href="https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.119" target="_blank" rel="noopener">osha.gov/laws-regs/regulations/standardnumber/1910/1910.119</a></span></li>
+        <li id="s17"><span class="rid">S17</span><span>OPSWAT. <span class="t">Unidirectional security gateway and data diode guide.</span> <span class="stype">Vendor</span> <a class="url" href="https://www.opswat.com/resources/guides/unidirectional-security-gateway-and-data-diode-guide" target="_blank" rel="noopener">opswat.com/resources/guides/unidirectional-security-gateway-and-data-diode-guide</a></span></li>
+        <li id="s18"><span class="rid">S18</span><span>Efficiency Valuation Organization. <span class="t">International Performance Measurement and Verification Protocol (IPMVP).</span> <a class="url" href="https://evo-world.org/en/products-services-mainmenu-en/protocols/ipmvp" target="_blank" rel="noopener">evo-world.org/en/products-services-mainmenu-en/protocols/ipmvp</a></span></li>
+        <li id="s19"><span class="rid">S19</span><span>Brink, Krych, Ramirez Cardenas &amp; Tiwari, McKinsey &amp; Company (19 Jul 2021). <span class="t">“Establishing the right analytics-based maintenance strategy.”</span> <a class="url" href="https://www.mckinsey.com/capabilities/operations/our-insights/establishing-the-right-analytics-based-maintenance-strategy" target="_blank" rel="noopener">mckinsey.com/capabilities/operations/our-insights/establishing-the-right-analytics-based-maintenance-strategy</a></span></li>
+        <li id="s20"><span class="rid">S20</span><span>Reliability Magazine. <span class="t">Predictive maintenance ROI benchmarks: what the studies show</span> (summarising McKinsey 2017). <span class="stype">Secondary</span> <a class="url" href="https://reliamag.com/topics/guides/predictive-maintenance-roi-benchmarks-what-the-studies-show" target="_blank" rel="noopener">reliamag.com/topics/guides/predictive-maintenance-roi-benchmarks-what-the-studies-show</a></span></li>
+        <li id="s21"><span class="rid">S21</span><span>ANYbotics. <span class="t">ANYmal X</span> product page. <span class="stype">Vendor</span> <a class="url" href="https://www.anybotics.com/robotics/anymal-x/" target="_blank" rel="noopener">anybotics.com/robotics/anymal-x</a></span></li>
+        <li id="s22"><span class="rid">S22</span><span>Offshore Magazine (2020). <span class="t">Spot deployed on BP’s Mad Dog platform.</span> <span class="stype">Trade press</span> <a class="url" href="https://www.offshore-mag.com/business-briefs/equipment-engineering/article/14187549/spot-deployed-on-bps-mad-dog-platform" target="_blank" rel="noopener">offshore-mag.com/business-briefs/equipment-engineering/article/14187549</a></span></li>
+        <li id="s23"><span class="rid">S23</span><span>LYB Mumbai Hackathon 2026. <span class="t">Round 1 Problem Statement and Student FAQ</span> (fictional Plant X). Provided to participants; no public link. <span class="stype">Competition brief</span></span></li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="foot gutter">
+    <table>
+      <tbody>
+        <tr><th scope="row">Prepared by</th><td>Team KSTS, NMIMS MPSTME, as the optional appendix to our Round 1 submission. Plant X and its figures are fictional, as the brief permits.</td></tr>
+      </tbody>
+    </table>
+  </footer>
+</main>
+
+</body>
+</html>
